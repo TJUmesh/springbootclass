@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.user.entity.User;
 import com.user.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -28,7 +30,7 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping("/postdata")
-	public ResponseEntity<User> saveData(@RequestBody User user) {
+	public ResponseEntity<User> saveData(@Valid @RequestBody User user) {
 		User saveDataService = userService.saveDataService(user);
 
 		return new ResponseEntity<User>(saveDataService, HttpStatus.CREATED);
@@ -56,7 +58,7 @@ public class UserController {
 
 	//
 	@PutMapping("/path/{id}")
-	public User updateData(@RequestBody User user, @PathVariable("id") Long userId) {
+	public User updateData(@Valid @RequestBody User user, @PathVariable("id") Long userId) {
 		return userService.updateData(user, userId);
 	}
 
