@@ -35,4 +35,18 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(UserAlreadyExist.class)
+	public ResponseEntity<?> cutstomExceptionHanler(UserAlreadyExist ex, WebRequest request) {
+
+		return new ResponseEntity<>(ex.getMessage(), HttpStatus.FOUND);
+
+	}
+
+	@ExceptionHandler(MisMatchPassword.class)
+	public ResponseEntity<?> cutstomExceptionHanler(MisMatchPassword ex, WebRequest request) {
+
+		return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+
+	}
+
 }

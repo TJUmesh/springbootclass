@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
@@ -33,9 +33,14 @@ public class User {
 	@Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid Mobile Number")
 	private String mobileNo;
 
-	private String Password;
+	private String password;
 
 	@Transient
 	private String repeatPassword;
+
+	@Email(message ="Please Enter Valid Email ")
+	private String email;
+	
+	
 
 }

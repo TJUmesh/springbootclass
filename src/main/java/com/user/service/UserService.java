@@ -2,6 +2,7 @@ package com.user.service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.user.entity.User;
+import com.user.exception.MisMatchPassword;
+import com.user.exception.UserAlreadyExist;
 import com.user.exception.UserNotFoundException;
 import com.user.repository.UserRepository;
 
@@ -19,6 +22,17 @@ public class UserService {
 	private UserRepository userRepository;
 
 	public User saveDataService(User user) {
+
+		Optional<User> byEmail = userRepository.findByEmail(user.getEmail());
+
+		if (byEmail.isPresent()) {
+
+			throw new UserAlreadyExist("User Already Exist!  " + user.getEmail());
+		}
+
+		if (!user.getPassword().equals(user.getRepeatPassword())) {
+			throw new MisMatchPassword("Sorry Mismatch Password ");
+		}
 
 		User save = this.userRepository.save(user);
 
@@ -48,6 +62,7 @@ public class UserService {
 		byId.setLastName(user.getLastName());
 		byId.setAddress(user.getAddress());
 		byId.setMobileNo(user.getMobileNo());
+		byId.setPassword(user.getPassword());
 
 		return userRepository.save(byId);
 	}
