@@ -1,8 +1,10 @@
 package com.user.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.user.entity.User;
+import com.user.service.EmailService;
+import com.user.service.FileService;
 import com.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -29,11 +34,32 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping("/postdata")
-	public ResponseEntity<User> saveData(@Valid @RequestBody User user) {
-		User saveDataService = userService.saveDataService(user);
+	@Autowired
+	private FileService fileService;
 
-		return new ResponseEntity<User>(saveDataService, HttpStatus.CREATED);
+	
+	// fetch path from application.properties
+	@Value("${project.image}")
+	String path;
+
+	@Autowired
+	private EmailService emailService;
+
+	@PostMapping("/postdata")
+	public ResponseEntity<?> saveData(@Valid @RequestBody User user) {
+
+		// this is send notification 
+		boolean sendEmailNotification = this.emailService.sendEmailNotification(user.getEmail());
+		
+		if (sendEmailNotification) {
+ 
+			// here data stored in db.
+			User saveDataService = userService.saveDataService(user);
+			return new ResponseEntity<>(saveDataService, HttpStatus.CREATED);
+
+		}
+
+		return new ResponseEntity<>("Sorry Email Not send ", HttpStatus.INTERNAL_SERVER_ERROR);
 
 	}
 
@@ -122,6 +148,22 @@ public class UserController {
 	@GetMapping("/fnamelname")
 	public User findByfNamelName(@RequestParam String fName, @RequestParam String lName) {
 		return userService.fetchByFNameAndLname(fName, lName);
+	}
+
+	@PostMapping("/postimage")
+	public ResponseEntity<?> fileUpload(@RequestParam("file") MultipartFile file) {
+
+		try {
+			this.fileService.saveImage(path, file);
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+			return new ResponseEntity<>("Image Not uploaded .....", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return new ResponseEntity<>("Image Uploaded SuccessFully ...", HttpStatus.OK);
+
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.user.entity.User;
@@ -33,6 +34,12 @@ public class UserService {
 		if (!user.getPassword().equals(user.getRepeatPassword())) {
 			throw new MisMatchPassword("Sorry Mismatch Password ");
 		}
+
+		BCryptPasswordEncoder bcryptPasswordEncoder = new BCryptPasswordEncoder();
+
+		String encode = bcryptPasswordEncoder.encode(user.getPassword());
+
+		user.setPassword(encode);
 
 		User save = this.userRepository.save(user);
 
